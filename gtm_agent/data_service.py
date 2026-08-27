@@ -23,6 +23,24 @@ __all__ = [
 # lookups within a run are served without rebuilding.
 _PROFILES = {}
 
+_SENSITIVE_PROSPECT_FIELDS = frozenset({
+    "billing_qualification",
+    "tax_id",
+    "date_of_birth",
+    "card_on_file",
+    "credit_check_ref",
+})
+
+
+def _scrub(record):
+    "Return a prospect record without sensitive fields."
+    if record is None:
+        return None
+    return {
+        key: value for key, value in record.items()
+        if key not in _SENSITIVE_PROSPECT_FIELDS
+    }
+
 # ---------------------------------------------------------------------------
 # Public data-access functions
 # ---------------------------------------------------------------------------
@@ -33,7 +51,7 @@ def get_offering(offering_id):
 
 def get_prospect_record(prospect_id):
     "Return the source prospect record for prospect_id, or None if not found."
-    return PROSPECTS.get(prospect_id)
+    return _scrub(PROSPECTS.get(prospect_id))
 
 
 def get_rep(rep):
